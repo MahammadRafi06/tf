@@ -1,0 +1,99 @@
+# ╔═══════════════════════════════════════════════════════════╗
+# ║            ConnectK Terraform Configuration              ║
+# ║                                                          ║
+# ║  Copy this file to terraform.tfvars and fill in values.  ║
+# ╚═══════════════════════════════════════════════════════════╝
+
+# ── Deployment Scenario ──────────────────────────────────────
+# Scenario 1 (Greenfield):         create_cluster=true,  install_argocd=true
+# Scenario 2 (Existing cluster):   create_cluster=false, install_argocd=true
+# Scenario 3 (Existing + ArgoCD):  create_cluster=false, install_argocd=false
+create_cluster = true
+install_argocd = true
+
+# ── Cloud Provider ───────────────────────────────────────────
+# Options: "eks", "aks", "gke"
+cloud_provider = "eks"
+
+# ── Database Strategy ────────────────────────────────────────
+# "self-hosted" = PostgreSQL + Redis as StatefulSets in-cluster
+# "managed"     = RDS/CloudSQL/Azure DB + ElastiCache/Memorystore/Azure Cache
+db_strategy = "self-hosted"
+
+# ── General ──────────────────────────────────────────────────
+project_name = "connectk"
+environment  = "prod"
+domain_name  = ""  # Leave empty to use LB DNS, or set "connectk.example.com"
+
+tags = {
+  Team    = "platform"
+  Project = "connectk"
+}
+
+# ── AWS / EKS (when cloud_provider = "eks") ──────────────────
+aws_region              = "us-east-1"
+eks_cluster_version     = "1.31"
+eks_node_instance_types = ["t3.medium"]
+eks_node_desired_size   = 3
+eks_node_min_size       = 2
+eks_node_max_size       = 5
+eks_use_auto_mode       = false
+vpc_cidr                = "10.0.0.0/16"
+
+# ── Azure / AKS (when cloud_provider = "aks") ────────────────
+# azure_location       = "eastus"
+# aks_cluster_version  = "1.31"
+# aks_node_vm_size     = "Standard_D2s_v5"
+# aks_node_count       = 3
+# aks_node_min_count   = 2
+# aks_node_max_count   = 5
+
+# ── GCP / GKE (when cloud_provider = "gke") ──────────────────
+# gcp_project          = "my-gcp-project"
+# gcp_region           = "us-central1"
+# gke_cluster_version  = "1.31"
+# gke_machine_type     = "e2-standard-2"
+# gke_node_count       = 1
+# gke_min_node_count   = 1
+# gke_max_node_count   = 3
+
+# ── Existing Cluster (when create_cluster = false) ───────────
+# existing_cluster_name       = "my-existing-cluster"
+# existing_eks_cluster_region = "us-east-1"         # EKS only
+# existing_aks_resource_group = "my-rg"             # AKS only
+# existing_gke_project        = "my-gcp-project"    # GKE only
+# existing_gke_region         = "us-central1"       # GKE only
+
+# ── Managed DB (when db_strategy = "managed") ────────────────
+# db_instance_class = "db.t3.medium"   # EKS: db.t3.medium | AKS: GP_Standard_D2s_v3 | GKE: db-custom-2-7680
+# db_storage_gb     = 20
+# db_username       = "connectk"
+# db_password       = ""               # Auto-generated if empty
+# redis_node_type   = "cache.t3.micro" # EKS: cache.t3.micro | AKS: C1 | GKE: BASIC
+
+# ── ConnectK Application Secrets ─────────────────────────────
+azure_tenant_id              = "your-tenant-id"
+azure_client_id              = "your-client-id"
+azure_client_secret          = "your-client-secret"
+initial_admin_entra_group_id = ""  # Entra group Object ID for initial admin
+admin_group_ids              = ""  # Comma-separated group IDs
+
+# Auto-generated if empty:
+# session_secret_key = ""
+# csrf_secret_key    = ""
+
+git_ssh_private_key = ""  # Base64-encoded SSH private key for GitOps
+
+# ── ArgoCD ───────────────────────────────────────────────────
+argocd_chart_version       = "7.7.10"
+argocd_server_service_type = "LoadBalancer"
+# argocd_server_url        = ""  # Only set if install_argocd=false and ArgoCD exists
+
+# ── Container Images ─────────────────────────────────────────
+container_registry = "ghcr.io/mahammadrafi06"
+backend_image_tag  = "latest"
+frontend_image_tag = "latest"
+
+# ── Git Repo (ArgoCD source) ─────────────────────────────────
+git_repo_url    = "https://github.com/MahammadRafi06/connectk-backend.git"
+git_repo_branch = "main"
